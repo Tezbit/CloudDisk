@@ -1,0 +1,1 @@
+docker run --rm -v /D/Works/JetBrains/GoProject/OnlineStore:/D/Works/JetBrains/GoProject/OnlineStore -w /D/Works/JetBrains/GoProject/OnlineStore -e ICODE=0D23CF3A7AB3ED75 cap1573/cap-micro new user
