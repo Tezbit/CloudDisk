@@ -1,0 +1,53 @@
+service core-api {
+	//用户登录
+	@handler UserLogin
+	post /user/login (LoginRequest) returns (LoginResponse)
+	
+	//用户详情
+	@handler UserDetail
+	post /user/detail (UserDetailRequest) returns (UserDetailResponse)
+	
+	//验证码发送
+	@handler MailCodeSendRegister
+	post /mail/code/send/register (MailCodeRequest) returns (MailCodeResponse)
+	
+	//用户注册
+	@handler UserRegister
+	post /user/register (UserRegisterRequest) returns (UserRegisterResponse)
+}
+
+type UserRegisterRequest {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Code     string `json:"code"`
+}
+
+type UserRegisterResponse {
+}
+
+type MailCodeRequest {
+	Email string `json:"email"`
+}
+
+type MailCodeResponse {
+	Code string `json:"code"`
+}
+
+type UserDetailRequest {
+	Identity string `json:"identity"`
+}
+
+type UserDetailResponse {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+type LoginRequest {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
+
+type LoginResponse {
+	Tocken string `json:"token"`
+}
