@@ -14,7 +14,6 @@ type UserClaim struct {
 }
 
 var JwtKey = "cloud-disk-tezbit"
-var AuthPwd = "SILFWOFGDWOPMLEG"
 
 //验证码过期时间(s)
 var CondeExpire = 300

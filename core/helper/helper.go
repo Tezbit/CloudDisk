@@ -39,13 +39,13 @@ func GenerateToken(id uint64, identity, name string) (string, error) {
 	return tokenString, nil
 }
 
-func MailSendCode(to, code string) error {
+func MailSendCode(from, to, code, pwd string) error {
 	e := email.NewEmail()
-	e.From = "Get <guzxrag61971@163.com>"
+	e.From = "Get <" + from + ">"
 	e.To = []string{to}
 	e.Subject = "CloudDisk验证码"
 	e.HTML = []byte("你的验证码为：<h1>" + code + "</h1>")
-	err := e.SendWithTLS("smtp.163.com:465", smtp.PlainAuth("", "guzxrag61971@163.com", define.AuthPwd, "smtp.163.com"),
+	err := e.SendWithTLS("smtp.163.com:465", smtp.PlainAuth("", from, pwd, "smtp.163.com"),
 		&tls.Config{InsecureSkipVerify: true, ServerName: "smtp.163.com"})
 	return err
 }

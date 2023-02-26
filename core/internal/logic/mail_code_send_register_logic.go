@@ -50,7 +50,8 @@ func (l *MailCodeSendRegisterLogic) MailCodeSendRegister(req *types.MailCodeRequ
 		return nil, err
 	}
 	//todo 异步？
-	err = helper.MailSendCode(req.Email, code)
+	sender := l.svcCtx.Config.Sender
+	err = helper.MailSendCode(sender.Email, req.Email, code, sender.AuthPwd)
 	if err != nil {
 		return nil, err
 	}
