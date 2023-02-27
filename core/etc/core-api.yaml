@@ -7,7 +7,3 @@ Mysql:
 
 Redis:
   Addr: localhost:6379
-
-Sender:
-  Email: guzxrag61971@163.com
-  AuthPwd: SILFWOFGDWOPMLEG

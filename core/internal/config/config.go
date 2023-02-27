@@ -10,8 +10,4 @@ type Config struct {
 	Redis struct {
 		Addr string
 	}
-	Sender struct {
-		Email   string
-		AuthPwd string
-	}
 }
