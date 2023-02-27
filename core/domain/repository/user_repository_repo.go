@@ -10,8 +10,11 @@ type IUserRepoRepository interface {
 	FindUserRepoIdByIdentity(string) (*models.UserRepository, error)
 	GetUserRepoFileCountByParentIdAndUserIdentity(int, string) (int64, error)
 	GetUserRepoCountByNameAndUserIdentityAndIdentity(string, string, string) (int64, error)
-	UpdateUserRepo(string, string, *models.UserRepository) error
+	UpdateUserRepoByIdentityAndUserIdentity(string, string, *models.UserRepository) error
 	GetUserRepoCountByNameAndUserIdentityAndParentId(string, string, int) (int64, error)
+	FindUserRepoByIdentityAndUserIdentity(string, string, *models.UserRepository) (bool, error)
+	DeleteByUserIdentityAndIdentity(string, string) error
+	UpdateUserRepoByIdentity(string, *models.UserRepository) error
 }
 
 func NewUserRepoRepository(engine *xorm.Engine) IUserRepoRepository {
@@ -24,6 +27,20 @@ type UserRepoRepository struct {
 	db *xorm.Engine
 }
 
+func (u *UserRepoRepository) UpdateUserRepoByIdentity(identity string, data *models.UserRepository) error {
+	_, err := u.db.Where("identity = ?", identity).Update(data)
+	return err
+}
+
+func (u *UserRepoRepository) FindUserRepoByIdentityAndUserIdentity(identity string, userIdentity string, data *models.UserRepository) (bool, error) {
+	return u.db.Where("identity = ? AND user_identity = ?", identity, userIdentity).Get(data)
+}
+
+func (u *UserRepoRepository) DeleteByUserIdentityAndIdentity(userIdentity string, identity string) error {
+	_, err := u.db.Where("user_identity = ? AND identity = ?", userIdentity, identity).Delete(new(models.UserRepository))
+	return err
+}
+
 func (u *UserRepoRepository) GetUserRepoCountByNameAndUserIdentityAndParentId(name string, userIdentity string, parentId int) (int64, error) {
 	return u.db.Where("name = ? AND user_identity = ? AND parent_id = ?", name, userIdentity, parentId).Count(new(models.UserRepository))
 }
@@ -33,7 +50,7 @@ func (u *UserRepoRepository) GetUserRepoCountByNameAndUserIdentityAndIdentity(na
 	return u.db.Where("name = ? AND user_identity = ? AND parent_id = (SELECT parent_id FROM user_repository ur WHERE ur.identity = ?)", name, userIdentity, identity).Count(new(models.UserRepository))
 }
 
-func (u *UserRepoRepository) UpdateUserRepo(identity string, userIdentity string, data *models.UserRepository) error {
+func (u *UserRepoRepository) UpdateUserRepoByIdentityAndUserIdentity(identity string, userIdentity string, data *models.UserRepository) error {
 	_, err := u.db.Where("identity = ? AND user_identity = ? ", identity, userIdentity).Update(data)
 	return err
 }

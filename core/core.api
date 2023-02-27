@@ -36,17 +36,33 @@ service core-api {
 	@handler UserFolderCreate
 	post /user/folder/create (UserFolderCreateRequest) returns (UserFolderCreateResponse)
 	
-	//    // 用户-文件删除
-	//    @handler UserFileDelete
-	//    delete /user/file/delete(UserFileDeleteRequest) returns (UserFileDeleteReply)
-	//
-	//    // 用户-文件移动
-	//    @handler UserFileMove
-	//    put /user/file/move(UserFileMoveRequest) returns (UserFileMoveReply)
+	// 用户-文件删除
+	@handler UserFileDelete
+	delete /user/file/delete (UserFileDeleteRequest) returns (UserFileDeleteReponse)
+	
+	// 用户-文件移动
+	@handler UserFileMove
+	put /user/file/move (UserFileMoveRequest) returns (UserFileMoveReponse)
 	
 	// 用户文件名称修改
 	@handler UserFileNameUpdate
 	post /user/file/name/update (UserFileNameUpdateRequest) returns (UserFileNameUpdateReponse)
+}
+
+type UserFileMoveRequest {
+	Idnetity string `json:"identity"`
+	//文件夹的identity
+	ParentIdentity string `json:"parent_identity"`
+}
+
+type UserFileMoveReponse {
+}
+
+type UserFileDeleteRequest {
+	Identity string `json:"identity"`
+}
+
+type UserFileDeleteReponse {
 }
 
 type UserFolderCreateRequest {

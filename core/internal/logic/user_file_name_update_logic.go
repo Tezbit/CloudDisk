@@ -39,7 +39,7 @@ func (l *UserFileNameUpdateLogic) UserFileNameUpdate(req *types.UserFileNameUpda
 	}
 	// 文件名称修改
 	data := &models.UserRepository{Name: req.Name}
-	err = l.repo.UpdateUserRepo(req.Identity, userIdentity, data)
+	err = l.repo.UpdateUserRepoByIdentityAndUserIdentity(req.Identity, userIdentity, data)
 	if err != nil {
 		return
 	}
