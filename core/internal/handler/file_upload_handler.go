@@ -26,7 +26,7 @@ func FileUploadHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		//判断文件是否已存在
+		//判断文件是否已存在(数据库里有cos的路径)
 		b := make([]byte, fileHeader.Size)
 		_, err = file.Read(b)
 		if err != nil {

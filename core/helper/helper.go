@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"bytes"
 	"cloud_disk/core/define"
 	"cloud_disk/core/internal/svc"
 	"context"
@@ -12,11 +13,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"golang.org/x/crypto/bcrypt"
+	"io"
 	"math/rand"
 	"net/http"
 	"net/smtp"
 	"net/url"
 	"path"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -73,6 +77,7 @@ func GetUUid() string {
 }
 
 func CosUpload(ctx *svc.ServiceContext, r *http.Request) (string, error) {
+	//todo :复用部分抽出来
 	u, _ := url.Parse(define.Bucket)
 	b := &cos.BaseURL{BucketURL: u}
 	client := cos.NewClient(b, &http.Client{
@@ -110,4 +115,77 @@ func AnalyzeToken(token string) (*define.UserClaim, error) {
 		return uc, errors.New("token is invalid")
 	}
 	return uc, err
+}
+
+// CosInitPart 分片上传初始化
+func CosInitPart(ctx *svc.ServiceContext, ext string) (string, string, error) {
+	//todo :复用部分抽出来
+	u, _ := url.Parse(define.Bucket)
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  ctx.CosSecret.SecretID,
+			SecretKey: ctx.CosSecret.SecretKey,
+		},
+	})
+	key := "cloud-disk/" + GetUUid() + ext
+	v, _, err := client.Object.InitiateMultipartUpload(context.Background(), key, nil)
+	if err != nil {
+		return "", "", err
+	}
+	return key, v.UploadID, nil
+}
+
+// CosPartUpload 分片上传
+func CosPartUpload(ctx *svc.ServiceContext, r *http.Request) (string, error) {
+	//todo :复用部分抽出来
+	u, _ := url.Parse(define.Bucket)
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  ctx.CosSecret.SecretID,
+			SecretKey: ctx.CosSecret.SecretKey,
+		},
+	})
+	key := r.PostForm.Get("key")
+	UploadID := r.PostForm.Get("upload_id")
+	partNumber, err := strconv.Atoi(r.PostForm.Get("part_number"))
+	if err != nil {
+		return "", err
+	}
+	f, _, err := r.FormFile("file")
+	if err != nil {
+		return "", err
+	}
+	buf := bytes.NewBuffer(nil)
+	io.Copy(buf, f)
+
+	// opt可选
+	resp, err := client.Object.UploadPart(
+		context.Background(), key, UploadID, partNumber, bytes.NewReader(buf.Bytes()), nil,
+	)
+	if err != nil {
+		return "", err
+	}
+	return strings.Trim(resp.Header.Get("ETag"), "\""), nil
+}
+
+// CosPartUploadComplete 分片上传完成
+func CosPartUploadComplete(ctx *svc.ServiceContext, key, uploadId string, co []cos.Object) error {
+	//todo :复用部分抽出来
+	u, _ := url.Parse(define.Bucket)
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  ctx.CosSecret.SecretID,
+			SecretKey: ctx.CosSecret.SecretKey,
+		},
+	})
+
+	opt := &cos.CompleteMultipartUploadOptions{}
+	opt.Parts = append(opt.Parts, co...)
+	_, _, err := client.Object.CompleteMultipartUpload(
+		context.Background(), key, uploadId, opt,
+	)
+	return err
 }

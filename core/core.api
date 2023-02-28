@@ -63,6 +63,58 @@ service core-api {
 	// 刷新Authorization
 	@handler RefreshAuthorization
 	post /refresh/authorization (RefreshAuthorizationRequest) returns (RefreshAuthorizationResponse)
+	
+	// 文件上传前基本信息处理（分片）
+	@handler FileUploadPrepare
+	post /file/upload/prepare (FileUploadPrepareRequest) returns (FileUploadPrepareResponse)
+	
+	// 文件分片上传
+	@handler FileUploadChunk
+	post /file/upload/chunk (FileUploadChunkRequest) returns (FileUploadChunkResponse)
+	
+	// 文件分片上传完成
+	@handler FileUploadChunkComplete
+	post /file/upload/chunk/complete (FileUploadChunkCompleteRequest) returns (FileUploadChunkCompleteResponse)
+}
+
+type FileUploadChunkCompleteRequest {
+	Md5Hash    string      `json:"md5_hash"`
+	Name       string      `json:"name"`
+	Ext        string      `json:"ext"`
+	Size       int64       `json:"size"`
+	Key        string      `json:"key"`
+	UploadId   string      `json:"upload_id"`
+	CosObjects []CosObject `json:"cos_objects"`
+}
+
+type CosObject {
+	PartNumber int    `json:"part_number"`
+	Etag       string `json:"etag"`
+}
+
+type FileUploadChunkCompleteResponse {
+	Identity string `json:"identity"` // 存储池identity
+}
+
+type FileUploadChunkRequest {
+	//客户端只要在请求上带上file文件即可
+}
+
+type FileUploadChunkResponse {
+	Etag string `json:"etag"` // MD5
+}
+
+type FileUploadPrepareRequest {
+	Md5Hash string `json:"md5_hash"`
+	Name    string `json:"name"`
+	Ext     string `json:"ext"`
+}
+
+type FileUploadPrepareResponse {
+	Identity string `json:"identity"`
+	//分片上传的准备
+	UploadId string `json:"upload_id"`
+	Key      string `json:"key"`
 }
 
 type RefreshAuthorizationRequest {
@@ -168,6 +220,7 @@ type UserRepositorySaveResponse {
 }
 
 type FileUploadRequest {
+	//这些不需要客户端填写，客户端只需要发一个file属性文件即可
 	Hash string `json:"hash,optional"`
 	Name string `json:"name,optional"`
 	Ext  string `json:"ext,optional"`

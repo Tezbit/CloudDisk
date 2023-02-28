@@ -6,7 +6,7 @@ import (
 )
 
 type IRepoPoolRepository interface {
-	FindRepoPoolByHash(hash string) (*models.RepositoryPool, error)
+	FindRepoPoolByHash(string, *models.RepositoryPool) (bool, error)
 	CreateRepoPool(*models.RepositoryPool) error
 	GetRepoPoolByIdentity(string, *models.RepositoryPool) (bool, error)
 }
@@ -30,8 +30,6 @@ func (r *RepoPoolRepository) CreateRepoPool(rp *models.RepositoryPool) error {
 	return err
 }
 
-func (r *RepoPoolRepository) FindRepoPoolByHash(hash string) (*models.RepositoryPool, error) {
-	rp := &models.RepositoryPool{}
-	_, err := r.db.Where("hash=?", hash).Get(rp)
-	return rp, err
+func (r *RepoPoolRepository) FindRepoPoolByHash(hash string, data *models.RepositoryPool) (bool, error) {
+	return r.db.Where("hash=?", hash).Get(data)
 }
