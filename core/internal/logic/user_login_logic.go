@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"cloud_disk/core/define"
 	repo "cloud_disk/core/domain/repository"
 	"cloud_disk/core/helper"
 	"context"
@@ -44,11 +45,17 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginRequest) (resp *types.LoginRe
 		return nil, errors.New("密码错误")
 	}
 	//生成token
-	token, err := helper.GenerateToken(uint64(user.Id), user.Identity, user.Name)
+	token, err := helper.GenerateToken(uint64(user.Id), user.Identity, user.Name, int64(define.TokenExpire))
+	if err != nil {
+		return nil, err
+	}
+	//refresh token
+	refreshToken, err := helper.GenerateToken(uint64(user.Id), user.Identity, user.Name, int64(define.RefreshTokenExpire))
 	if err != nil {
 		return nil, err
 	}
 	resp = new(types.LoginResponse)
 	resp.Tocken = token
+	resp.RefreshToken = refreshToken
 	return
 }

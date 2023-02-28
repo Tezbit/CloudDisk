@@ -32,11 +32,12 @@ func Validate(s string, hashed string) (bool, error) {
 	return true, nil
 }
 
-func GenerateToken(id uint64, identity, name string) (string, error) {
+func GenerateToken(id uint64, identity, name string, sec int64) (string, error) {
 	uc := define.UserClaim{
-		Id:       id,
-		Identity: identity,
-		Name:     name,
+		Id:             id,
+		Identity:       identity,
+		Name:           name,
+		StandardClaims: jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Second * time.Duration(sec)).Unix()},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, uc)
 	tokenString, err := token.SignedString([]byte(define.JwtKey))

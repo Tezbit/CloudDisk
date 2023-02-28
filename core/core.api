@@ -14,6 +14,10 @@ service core-api {
 	//用户注册
 	@handler UserRegister
 	post /user/register (UserRegisterRequest) returns (UserRegisterResponse)
+	
+	// 获取资源详情
+	@handler ShareBasicDetail
+	get /share/basic/detail (ShareBasicDetailRequest) returns (ShareBasicDetailResponse)
 }
 
 @server(
@@ -47,6 +51,56 @@ service core-api {
 	// 用户文件名称修改
 	@handler UserFileNameUpdate
 	post /user/file/name/update (UserFileNameUpdateRequest) returns (UserFileNameUpdateReponse)
+	
+	// 创建分享记录
+	@handler ShareBasicCreate
+	post /share/basic/create (ShareBasicCreateRequest) returns (ShareBasicCreateResponse)
+	
+	// 资源保存
+	@handler ShareBasicSave
+	post /share/basic/save (ShareBasicSaveRequest) returns (ShareBasicSaveResponse)
+	
+	// 刷新Authorization
+	@handler RefreshAuthorization
+	post /refresh/authorization (RefreshAuthorizationRequest) returns (RefreshAuthorizationResponse)
+}
+
+type RefreshAuthorizationRequest {
+}
+
+type RefreshAuthorizationResponse {
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type ShareBasicSaveRequest {
+	RepositoryIdentity string `json:"repository_identity"`
+	ParentId           int64  `json:"parent_id"`
+}
+
+type ShareBasicSaveResponse {
+	Identity string `json:"identity"`
+}
+
+type ShareBasicDetailRequest {
+	Identity string `json:"identity,optional"`
+}
+
+type ShareBasicDetailResponse {
+	RepositoryIdentity string `json:"repository_identity"`
+	Name               string `json:"name"`
+	Ext                string `json:"ext"`
+	Size               int64  `json:"size"`
+	Path               string `json:"path"`
+}
+
+type ShareBasicCreateRequest {
+	UserRepositoryIdentity string `json:"user_repository_identity"`
+	ExpiredTime            int    `json:"expired_time"`
+}
+
+type ShareBasicCreateResponse {
+	Identity string `json:"identity"`
 }
 
 type UserFileMoveRequest {
@@ -160,5 +214,6 @@ type LoginRequest {
 }
 
 type LoginResponse {
-	Tocken string `json:"token"`
+	Tocken       string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
 }

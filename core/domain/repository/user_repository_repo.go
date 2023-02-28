@@ -6,7 +6,7 @@ import (
 )
 
 type IUserRepoRepository interface {
-	CreateUserRepo(repository *models.UserRepository) error
+	CreateUserRepo(*models.UserRepository) error
 	FindUserRepoIdByIdentity(string) (*models.UserRepository, error)
 	GetUserRepoFileCountByParentIdAndUserIdentity(int, string) (int64, error)
 	GetUserRepoCountByNameAndUserIdentityAndIdentity(string, string, string) (int64, error)
@@ -15,6 +15,7 @@ type IUserRepoRepository interface {
 	FindUserRepoByIdentityAndUserIdentity(string, string, *models.UserRepository) (bool, error)
 	DeleteByUserIdentityAndIdentity(string, string) error
 	UpdateUserRepoByIdentity(string, *models.UserRepository) error
+	GetUserRepoByIdentity(string, *models.UserRepository) (bool, error)
 }
 
 func NewUserRepoRepository(engine *xorm.Engine) IUserRepoRepository {
@@ -25,6 +26,10 @@ func NewUserRepoRepository(engine *xorm.Engine) IUserRepoRepository {
 
 type UserRepoRepository struct {
 	db *xorm.Engine
+}
+
+func (u *UserRepoRepository) GetUserRepoByIdentity(identity string, data *models.UserRepository) (bool, error) {
+	return u.db.Where("identity = ?", identity).Get(data)
 }
 
 func (u *UserRepoRepository) UpdateUserRepoByIdentity(identity string, data *models.UserRepository) error {

@@ -8,6 +8,7 @@ import (
 type IRepoPoolRepository interface {
 	FindRepoPoolByHash(hash string) (*models.RepositoryPool, error)
 	CreateRepoPool(*models.RepositoryPool) error
+	GetRepoPoolByIdentity(string, *models.RepositoryPool) (bool, error)
 }
 
 func NewRepoPoolRepository(engine *xorm.Engine) IRepoPoolRepository {
@@ -18,6 +19,10 @@ func NewRepoPoolRepository(engine *xorm.Engine) IRepoPoolRepository {
 
 type RepoPoolRepository struct {
 	db *xorm.Engine
+}
+
+func (r *RepoPoolRepository) GetRepoPoolByIdentity(identity string, rp *models.RepositoryPool) (bool, error) {
+	return r.db.Where("identity = ?", identity).Get(rp)
 }
 
 func (r *RepoPoolRepository) CreateRepoPool(rp *models.RepositoryPool) error {
